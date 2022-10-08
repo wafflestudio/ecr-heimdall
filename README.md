@@ -1,4 +1,4 @@
-# ecr-image-tag-updator
+# ecr-image-tag-updater
 ## auto-deploying docker images to wafflestudio-cluster
 
 ### how it works
