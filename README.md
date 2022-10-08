@@ -1,5 +1,5 @@
-# ecr-image-tag-updater
-## auto-deploying docker images to wafflestudio-cluster
+# ecr-heimdall
+## detects ecr push and reflects it to waffle-world
 
 ### how it works
 1. GitHub Actions (in each repo) build and push docker image to ECR
