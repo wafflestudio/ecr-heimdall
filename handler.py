@@ -19,24 +19,25 @@ def get_credential(key):
     return json.loads(credential["SecretString"])[key]
 
 
+GITHUB_ACCESS_TOKEN = get_credential("github-access-token")
+GITHUB_CLIENT = Github(GITHUB_ACCESS_TOKEN)
+
+
 def update_waffle_world_image_tag(event, context):
     try:
-        access_token = get_credential("github-access-token")
-        gh = Github(access_token)
-
         ecr_repo = event["detail"]["repository-name"]  # ex> snutt-dev/snutt-ev
         namespace, app = ecr_repo.split("/")
         image_tag = event["detail"]["image-tag"]
 
-        gh_repo = gh.get_repo("wafflestudio/waffle-world")
+        gh_repo = GITHUB_CLIENT.get_repo("wafflestudio/waffle-world")
         target_file = gh_repo.get_contents(f"apps/{namespace}/{app}/{app}.yaml")
         decoded_lines = base64.b64decode(target_file.content).decode("utf-8").split("\n")
 
         lines = []
         for line in decoded_lines:
             if f"image: {ECR_HOST}/{ecr_repo}" in line:
-                old_image_tag = line.split(":")[-1].strip()
-                line = line.replace(old_image_tag, image_tag)
+                old_image_tag = line.split(":")[-1].split(" ")[0].strip()
+                line = line.replace(f":{old_image_tag}", f":{image_tag}")
 
             lines.append(line)
 
