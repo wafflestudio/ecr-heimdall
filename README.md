@@ -10,5 +10,7 @@
 ### how to deploy
 ```
 docker build -t ecr-heimdall . --platform linux/amd64
+```
+```
 docker run --platform linux/amd64 -v ~/.aws/credentials:/root/.aws/credentials -it ecr-heimdall
 ```
