@@ -30,23 +30,28 @@ def update_waffle_world_image_tag(event, context):
         image_tag = event["detail"]["image-tag"]
 
         gh_repo = GITHUB_CLIENT.get_repo("wafflestudio/waffle-world")
-        target_file = gh_repo.get_contents(f"apps/{namespace}/{app}/{app}.yaml")
-        decoded_lines = base64.b64decode(target_file.content).decode("utf-8").split("\n")
+        target_dir = gh_repo.get_contents(f"apps/{namespace}/{app}")
 
-        lines = []
-        for line in decoded_lines:
-            if f"image: {ECR_HOST}/{ecr_repo}" in line:
-                old_image_tag = line.split(":")[-1].split(" ")[0].strip()
-                line = line.replace(f":{old_image_tag}", f":{image_tag}")
+        for target_file in target_dir:
+            if target_file.type != "file":
+                continue
 
-            lines.append(line)
+            decoded_lines = base64.b64decode(target_file.content).decode("utf-8").split("\n")
 
-        gh_repo.update_file(
-            target_file.path,
-            f"Automated commit by ECR push ({ecr_repo}:{image_tag})",
-            "\n".join(lines),
-            target_file.sha,
-        )
+            lines = []
+            for line in decoded_lines:
+                if f"image: {ECR_HOST}/{ecr_repo}" in line:
+                    old_image_tag = line.split(":")[-1].split(" ")[0].strip()
+                    line = line.replace(f":{old_image_tag}", f":{image_tag}")
+
+                lines.append(line)
+
+            gh_repo.update_file(
+                target_file.path,
+                f"Automated commit by ECR push ({ecr_repo}:{image_tag})",
+                "\n".join(lines),
+                target_file.sha,
+            )
         return 'SUCCESS'
     except:
         LOG.exception("Lambda function failed:")
