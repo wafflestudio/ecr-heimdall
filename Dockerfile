@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 WORKDIR /tmp
 
@@ -15,7 +15,7 @@ WORKDIR /code
 COPY requirements.txt ./
 
 RUN set -ex \
-	&& pip install --no-cache-dir -r requirements.txt -t /vendor \
+	&& pip install --platform manylinux2014_x86_64 --only-binary=:all: --no-cache-dir -r requirements.txt -t /vendor \
 	&& cd /vendor && zip -r9 /function.zip  . -x '*/__pycache__/*' \
 	&& cd / && rm -rf /vendor
 
