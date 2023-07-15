@@ -39,7 +39,7 @@ def update_waffle_world_image_tag(event, context):
                     if f"image: {ECR_HOST}/{ecr_repo}:" in line:
                         old_image_tag = line.split(":")[-1].split(" ")[0].strip()
                         line = line.replace(f":{old_image_tag}", f":{image_tag}")
-                        updated = True
+                        updated = old_image_tag != image_tag
 
                     lines.append(line)
 
